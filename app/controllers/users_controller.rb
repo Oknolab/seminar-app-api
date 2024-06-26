@@ -28,6 +28,19 @@ class UsersController < ApplicationController
     end
   end
 
+  def destroy
+    user = User.find_by(id: params[:id])
+
+    unless user
+      render json: { errors: ["User not found"] }, status: :not_found
+      return
+    end
+
+    user.destroy
+    
+    render json: { user: user }
+  end
+
   private
 
   def params_create

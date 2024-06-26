@@ -129,4 +129,36 @@ RSpec.describe "Users", type: :request do
       end
     end
   end
+
+  describe "DELETE /users/:id" do
+    describe "when valid" do
+      before do
+        @user = create(:user)
+        delete "/users/#{@user[:id]}"
+      end
+
+      it "returns 200" do
+        expect(response).to have_http_status(200)
+      end
+
+      it "deletes user" do
+        expect(User.count).to eq(0)
+      end
+    end
+
+    describe "when user not found" do
+      before do
+        delete "/users/0"
+      end
+
+      it "returns 404" do
+        expect(response).to have_http_status(404)
+      end
+
+      it "returns error" do
+        res = JSON.parse(response.body)
+        expect(res).to include("errors")
+      end
+    end
+  end
 end
