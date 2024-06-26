@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   # root "articles#index"
 
   get "/ping", to: "pings#index"
+
+  post "/users", to: "users#create"
 end
