@@ -64,4 +64,69 @@ RSpec.describe "Users", type: :request do
       end
     end
   end
+
+  describe "PATCH /users/:id" do
+    describe "when valid" do
+      before do
+        @user = create(:user)
+        @params = {
+          user: {
+            name: "user_edited",
+          }
+        }
+
+        patch "/users/#{@user[:id]}", params: @params
+      end
+
+      it "returns 200" do
+        expect(response).to have_http_status(200)
+      end
+
+      it "updates user" do
+        @user.reload
+        expect(@user[:name]).to eq(@params[:user][:name])
+      end
+
+      # it "returns user" do
+      #   res = JSON.parse(response.body)["user"]
+      #   expect(res).to eq(@user.as_json)
+      # end
+    end
+
+    describe "when invalid" do
+      before do
+        @user = create(:user)
+        patch "/users/#{@user[:id]}", params: { user: { name: "" } }
+      end
+
+      it "returns 422" do
+        expect(response).to have_http_status(422)
+      end
+
+      it "returns errors" do
+        res = JSON.parse(response.body)
+        expect(res).to include("errors")
+      end
+
+      it "does not update user" do
+        @user.reload
+        expect(@user[:name]).to_not eq("")
+      end
+    end
+
+    describe "when user not found" do
+      before do
+        patch "/users/0", params: { user: { name: "user_edited" } }
+      end
+
+      it "returns 404" do
+        expect(response).to have_http_status(404)
+      end
+
+      it "returns error" do
+        res = JSON.parse(response.body)
+        expect(res).to include("errors")
+      end
+    end
+  end
 end
